@@ -1,0 +1,12 @@
+pyspark
+SQLAlchemy
+pandas
+keras
+pymysql
+cryptography
+scikit-learn
+numpy
+matplotlib
+tensorflow
+scikit-surprise
+pymongo==4.8.0

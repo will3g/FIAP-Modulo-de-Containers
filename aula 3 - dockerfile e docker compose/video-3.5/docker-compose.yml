@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  jupyter:
+    build:
+      context: ./configs/jupyter
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888" # INTERFACE: http://localhost:8888
+    volumes:
+      - ./data/notebooks:/home/jupyternb
+    labels:
+      kompose.service.type: "LoadBalancer"
+    networks:
+      - ml-network
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    labels:
+      kompose.service.type: "LoadBalancer"
+    networks:
+      - ml-network
+
+  mongodb-compass:
+    image: mongo-express:1.0.0-18-alpine3.18
+    environment:
+      ME_CONFIG_MONGODB_SERVER: "mongo"
+      ME_CONFIG_MONGODB_PORT: "27017"
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_ADMINUSERNAME: "root"
+      ME_CONFIG_MONGODB_ADMINPASSWORD: "root"
+      ME_CONFIG_BASICAUTH_USERNAME: "root"
+      ME_CONFIG_BASICAUTH_PASSWORD: "root"
+    ports:
+      - "8081:8081" # INTERFACE: http://localhost:8081
+    labels:
+      kompose.service.type: "LoadBalancer"
+    depends_on:
+      - mongo
+    networks:
+      - ml-network
+
+  streamlit:
+    image: python:3.8-slim
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # INTERFACE: http://localhost:8080
+    volumes:
+      - ./app:/app
+    labels:
+      kompose.service.type: "LoadBalancer"
+    networks:
+      - ml-network
+
+networks:
+  ml-network:
