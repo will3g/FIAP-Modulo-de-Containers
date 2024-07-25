@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  mongo-dev:
+    extends:
+      file: docker-compose-base.yml
+      service: mongo
+
+  mongodb-compass-dev:
+    extends:
+      file: docker-compose-base.yml
+      service: mongodb-compass
+
+  streamlit-dev:
+    extends:
+      file: docker-compose-base.yml
+      service: streamlit
+
+networks:
+  ml-network:
+    external: true

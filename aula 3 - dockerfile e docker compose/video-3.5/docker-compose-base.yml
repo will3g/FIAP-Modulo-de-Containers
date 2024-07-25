@@ -1,19 +1,6 @@
 version: '3.8'
 
 services:
-  jupyter:
-    build:
-      context: ./configs/jupyter
-      dockerfile: Dockerfile
-    ports:
-      - "8888:8888" # INTERFACE: http://localhost:8888
-    volumes:
-      - ./data/notebooks:/home/jupyternb
-    labels:
-      kompose.service.type: "LoadBalancer"
-    networks:
-      - ml-network
-
   mongo:
     image: mongo
     ports:
@@ -23,8 +10,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-    labels:
-      kompose.service.type: "LoadBalancer"
     networks:
       - ml-network
 
@@ -40,15 +25,12 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: "root"
     ports:
       - "8081:8081" # INTERFACE: http://localhost:8081
-    labels:
-      kompose.service.type: "LoadBalancer"
     depends_on:
       - mongo
     networks:
       - ml-network
 
   streamlit:
-    image: python:3.8-slim
     build:
       context: ./app
       dockerfile: Dockerfile
@@ -56,8 +38,6 @@ services:
       - "8080:8080" # INTERFACE: http://localhost:8080
     volumes:
       - ./app:/app
-    labels:
-      kompose.service.type: "LoadBalancer"
     networks:
       - ml-network
 

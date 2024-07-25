@@ -1,73 +1,39 @@
 version: '3.8'
 
 services:
-  jupyter:
-    image: gcr.io/<project_id>/myjupyterconfig:latest
-    ports:
-      - "8888:8888" # INTERFACE: http://localhost:8888
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-    labels:
-      kompose.service.type: "LoadBalancer"
-    networks:
-      - ml-network
-
   mongo:
-    image: mongo
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+    extends:
+      file: docker-compose-base.yml
+      service: mongo
     deploy:
       resources:
         limits:
           memory: 1g
     labels:
       kompose.service.type: "LoadBalancer"
-    networks:
-      - ml-network
 
   mongodb-compass:
-    image: mongo-express:1.0.0-18-alpine3.18
-    environment:
-      ME_CONFIG_MONGODB_SERVER: "mongo"
-      ME_CONFIG_MONGODB_PORT: "27017"
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_MONGODB_ADMINUSERNAME: "root"
-      ME_CONFIG_MONGODB_ADMINPASSWORD: "root"
-      ME_CONFIG_BASICAUTH_USERNAME: "root"
-      ME_CONFIG_BASICAUTH_PASSWORD: "root"
-    ports:
-      - "8081:8081" # INTERFACE: http://localhost:8081
+    extends:
+      file: docker-compose-base.yml
+      service: mongodb-compass
     deploy:
       resources:
         limits:
           memory: 500m
     labels:
       kompose.service.type: "LoadBalancer"
-    depends_on:
-      - mongo
-    networks:
-      - ml-network
 
   streamlit:
-    image: gcr.io/<project_id>/mystreamlitconfig:latest
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080" # INTERFACE: http://localhost:8080
+    extends:
+      file: docker-compose-base.yml
+      service: streamlit
     deploy:
       resources:
         limits:
           memory: 500m
     labels:
       kompose.service.type: "LoadBalancer"
-    networks:
-      - ml-network
 
 networks:
   ml-network:
+    external: true
