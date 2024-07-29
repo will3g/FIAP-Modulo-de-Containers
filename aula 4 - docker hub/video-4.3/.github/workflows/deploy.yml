@@ -21,9 +21,6 @@ jobs:
         cd app
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.STREAMLIT_IMAGE }}:latest .
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.STREAMLIT_IMAGE }}:latest
-        cd ../configs/jupyter
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.JUPYTER_IMAGE }}:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.JUPYTER_IMAGE }}:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,14 +48,9 @@ jobs:
       run: |
         ./generate-manifest.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.STREAMLIT_IMAGE }} streamlit-app 8080 streamlit-deployment.yml
 
-    - name: Generate Manifest to jupyter
-      run: |
-        ./generate-manifest.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.JUPYTER_IMAGE }} jupyter-app 8888 jupyter-deployment.yml
-
     - name: Deploy to GKE
       run: |
         kubectl apply -f streamlit-deployment.yml
-        kubectl apply -f jupyter-deployment.yml
 
   notify_devops_team:
     runs-on: ubuntu-latest

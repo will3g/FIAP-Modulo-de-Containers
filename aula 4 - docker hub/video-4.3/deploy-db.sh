@@ -11,11 +11,9 @@ eval kubectl apply -f ./mongo-deployment.yaml
 eval kubectl apply -f ./mongo-tcp-service.yaml
 
 # remove os manifests
-eval sudo rm -f ./jupyter-deployment.yaml
-eval sudo rm -f ./jupyter-tcp-service.yaml
-eval sudo rm -f ./streamlit-deployment.yaml
-eval sudo rm -f ./streamlit-tcp-service.yaml
-eval sudo rm -f ./mongodb-compass-deployment.yaml
-eval sudo rm -f ./mongodb-compass-tcp-service.yaml
 eval sudo rm -f ./mongo-deployment.yaml
 eval sudo rm -f ./mongo-tcp-service.yaml
+eval sudo rm -f ./mongodb-compass-deployment.yaml
+eval sudo rm -f ./mongodb-compass-tcp-service.yaml
+eval sudo rm -f ./streamlit-deployment.yaml
+eval sudo rm -f ./streamlit-tcp-service.yaml

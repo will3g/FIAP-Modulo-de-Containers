@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   mongo:
+    container_name: mongo
     image: mongo
     ports:
       - "27017:27017"
@@ -40,6 +41,12 @@ services:
       - ./app:/app
     networks:
       - ml-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   ml-network:

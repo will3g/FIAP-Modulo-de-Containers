@@ -10,35 +10,67 @@ cat <<EOF > $GKE_FILE_NAME
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $GKE_INSTANCE_NAME
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-prd.yml
+    kompose.service.type: LoadBalancer
+    kompose.version: 1.34.0 (cbf2835db)
   labels:
-    app: $GKE_INSTANCE_NAME
+    io.kompose.service: $GKE_INSTANCE_NAME
+  name: $GKE_INSTANCE_NAME
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: $GKE_INSTANCE_NAME
+      io.kompose.service: $GKE_INSTANCE_NAME
+  strategy:
+    type: Recreate
   template:
     metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-prd.yml
+        kompose.service.type: LoadBalancer
+        kompose.version: 1.34.0 (cbf2835db)
       labels:
-        app: $GKE_INSTANCE_NAME
+        io.kompose.service: $GKE_INSTANCE_NAME
     spec:
       containers:
-      - name: $GKE_INSTANCE_NAME
-        image: $DOCKER_USERNAME/$INSTANCE_IMAGE:latest
-        ports:
-        - containerPort: $GKE_INSTANCE_PORT
+        - image: $DOCKER_USERNAME/$INSTANCE_IMAGE:latest
+          livenessProbe:
+            exec:
+              command:
+                - curl -f http://localhost:$GKE_INSTANCE_PORT/ || exit 1
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: $GKE_INSTANCE_NAME
+          ports:
+            - containerPort: $GKE_INSTANCE_PORT
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "2"
+              memory: "4294967296"
+            requests:
+              cpu: "1"
+              memory: "2147483648"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: $GKE_INSTANCE_NAME
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-prd.yml
+    kompose.service.type: LoadBalancer
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    io.kompose.service: $GKE_INSTANCE_NAME-tcp
+  name: $GKE_INSTANCE_NAME-tcp
 spec:
-  type: LoadBalancer
-  selector:
-    app: $GKE_INSTANCE_NAME
   ports:
-    - protocol: TCP
-      port: 80
+    - name: "$GKE_INSTANCE_PORT"
+      port: $GKE_INSTANCE_PORT
       targetPort: $GKE_INSTANCE_PORT
+  selector:
+    io.kompose.service: $GKE_INSTANCE_NAME
+  type: LoadBalancer
 EOF

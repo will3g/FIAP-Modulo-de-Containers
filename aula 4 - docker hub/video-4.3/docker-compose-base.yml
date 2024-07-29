@@ -1,24 +1,8 @@
 version: '3.8'
 
 services:
-  jupyter:
-    build:
-      context: ./configs/jupyter
-      dockerfile: Dockerfile
-    ports:
-      - "8888:8888" # INTERFACE: http://localhost:8888
-    volumes:
-      - ./data/notebooks:/home/jupyternb
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-    labels:
-      kompose.service.type: "LoadBalancer"
-    networks:
-      - ml-network
-
   mongo:
+    container_name: mongo
     image: mongo
     ports:
       - "27017:27017"
@@ -27,12 +11,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-    labels:
-      kompose.service.type: "LoadBalancer"
     networks:
       - ml-network
 
@@ -48,19 +26,12 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: "root"
     ports:
       - "8081:8081" # INTERFACE: http://localhost:8081
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-    labels:
-      kompose.service.type: "LoadBalancer"
     depends_on:
       - mongo
     networks:
       - ml-network
 
   streamlit:
-    image: python:3.8-slim
     build:
       context: ./app
       dockerfile: Dockerfile
@@ -68,14 +39,14 @@ services:
       - "8080:8080" # INTERFACE: http://localhost:8080
     volumes:
       - ./app:/app
-    deploy:
-      resources:
-        limits:
-          memory: 500m
-    labels:
-      kompose.service.type: "LoadBalancer"
     networks:
       - ml-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   ml-network:

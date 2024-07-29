@@ -8,7 +8,11 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     labels:
       kompose.service.type: "LoadBalancer"
 
@@ -19,7 +23,11 @@ services:
     deploy:
       resources:
         limits:
-          memory: 500m
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     labels:
       kompose.service.type: "LoadBalancer"
 
@@ -30,10 +38,13 @@ services:
     deploy:
       resources:
         limits:
-          memory: 500m
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     labels:
       kompose.service.type: "LoadBalancer"
 
 networks:
   ml-network:
-    external: true
