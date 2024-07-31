@@ -102,13 +102,17 @@ services:
       - overlay_network
 
   data-handler:
-    image: busybox # Combina os utilitários mais utilizados do UNIX em um executável
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
     container_name: data_handler
     command: /bin/sh -c "/backup/handler.sh; while true; do sleep 3600; done"
     volumes:
       - ./data:/data
-      - ./backup:/backup
+      - ./backup/dumps:/backup/dumps
     network_mode: none
+    depends_on:
+      - mongodb
 
 networks:
   bridge_network:   # comunicação no mesmo host
