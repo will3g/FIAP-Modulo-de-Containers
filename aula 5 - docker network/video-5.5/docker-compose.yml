@@ -104,11 +104,11 @@ services:
   data-handler:
     image: busybox # Combina os utilitários mais utilizados do UNIX em um executável
     container_name: data_handler
-    command: /bin/sh -c "while true; do sleep 3600; done"
+    command: /bin/sh -c "/backup/handler.sh; while true; do sleep 3600; done"
     volumes:
       - ./data:/data
-    networks:
-      - none_network
+      - ./backup:/backup
+    network_mode: none
 
 networks:
   bridge_network:   # comunicação no mesmo host
@@ -117,6 +117,3 @@ networks:
   overlay_network:  # comunicação entre hosts (bridge_network + overlay_network = flexibilidade de ambientes)
     driver: overlay
     attachable: true
-  none_network:
-    name: none_network
-    driver: none
