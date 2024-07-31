@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  mongodb:
+    container_name: mongodb
+    hostname: mongodb
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      - bridge_network
+      - overlay_network
+
+  mongodb-compass:
+    container_name: compass
+    hostname: compass
+    image: mongo-express:1.0.0-18-alpine3.18
+    environment:
+      ME_CONFIG_MONGODB_SERVER: "mongodb"
+      ME_CONFIG_MONGODB_PORT: "27017"
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_ADMINUSERNAME: "root"
+      ME_CONFIG_MONGODB_ADMINPASSWORD: "root"
+      ME_CONFIG_BASICAUTH_USERNAME: "root"
+      ME_CONFIG_BASICAUTH_PASSWORD: "root"
+    ports:
+      - "8081:8081" # INTERFACE: http://localhost:8081
+    depends_on:
+      - mongo
+    networks:
+      - bridge_network
+      - overlay_network
+
+  app1:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    container_name: app1
+    hostname: app1
+    volumes:
+      - ./app1:/app
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_PASS: "root"
+      MONGODB_USER: "root"
+      MONGODB_PORT: "27017"
+      MONGODB_HOSTNAME: "mongodb"
+      MONGODB_DATABASE: "finance"
+      MONGODB_COLLECTION: "tickers"
+      EXTERNAL_API: "https://dadosdemercado.com.br/acoes"
+    networks:
+      - bridge_network
+      - overlay_network
+
+  app2:
+    build:
+      context: ./app2
+      dockerfile: Dockerfile
+    container_name: app2
+    hostname: app2
+    volumes:
+      - ./app2:/app
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_PASS: "root"
+      MONGODB_USER: "root"
+      MONGODB_PORT: "27017"
+      MONGODB_HOSTNAME: "mongodb"
+      MONGODB_DATABASE: "finance"
+      MONGODB_COLLECTION: "tickers"
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "5000"
+    networks:
+      - bridge_network
+      - overlay_network
+
+  app3:
+    build:
+      context: ./app3
+      dockerfile: Dockerfile
+    container_name: app3
+    hostname: app3
+    volumes:
+      - ./app3:/app
+    depends_on:
+      - mongodb
+    ports:
+      - "8501:8501" # INTERFACE: http://localhost:8501
+    environment:
+      API_URL: "http://app2:5000/ticker/"
+    networks:
+      - bridge_network
+      - overlay_network
+
+  data-handler:
+    image: busybox # Combina os utilitários mais utilizados do UNIX em um executável
+    container_name: data_handler
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    volumes:
+      - ./data:/data
+    networks:
+      - none_network
+
+networks:
+  bridge_network:   # comunicação no mesmo host
+    name: bridge_network
+    driver: bridge
+  overlay_network:  # comunicação entre hosts (bridge_network + overlay_network = flexibilidade de ambientes)
+    driver: overlay
+    attachable: true
+  none_network:
+    name: none_network
+    driver: none
