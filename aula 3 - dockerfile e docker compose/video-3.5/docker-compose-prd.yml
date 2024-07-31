@@ -35,6 +35,7 @@ services:
     extends:
       file: docker-compose-base.yml
       service: streamlit
+    image: gcr.io/<project_id>/mystreamlitconfig:latest
     deploy:
       resources:
         limits:
