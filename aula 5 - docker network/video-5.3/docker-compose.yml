@@ -13,11 +13,13 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
     networks:
-      - mynetwork
+      - bridge_network
+      - overlay_network
 
   mongodb-compass:
-    image: mongo-express:1.0.0-18-alpine3.18
     container_name: compass
+    hostname: compass
+    image: mongo-express:1.0.0-18-alpine3.18
     environment:
       ME_CONFIG_MONGODB_SERVER: "mongodb"
       ME_CONFIG_MONGODB_PORT: "27017"
@@ -31,7 +33,8 @@ services:
     depends_on:
       - mongo
     networks:
-      - mynetwork
+      - bridge_network
+      - overlay_network
 
   app1:
     build:
@@ -52,7 +55,8 @@ services:
       MONGODB_COLLECTION: "tickers"
       EXTERNAL_API: "https://dadosdemercado.com.br/acoes"
     networks:
-      - mynetwork
+      - bridge_network
+      - overlay_network
 
   app2:
     build:
@@ -76,7 +80,8 @@ services:
       APP_HOST: "0.0.0.0"
       APP_PORT: "5000"
     networks:
-      - mynetwork
+      - bridge_network
+      - overlay_network
 
   app3:
     build:
@@ -93,9 +98,25 @@ services:
     environment:
       API_URL: "http://app2:5000/ticker/"
     networks:
-      - mynetwork
+      - bridge_network
+      - overlay_network
+
+  data-handler:
+    image: busybox # Combina os utilitários mais utilizados do UNIX em um executável
+    container_name: data_handler
+    command: /bin/sh -c "while true; do sleep 3600; done"
+    volumes:
+      - ./data:/data
+    networks:
+      - none_network
 
 networks:
-  mynetwork:
-    name: mynetwork
+  bridge_network:   # comunicação no mesmo host
+    name: bridge_network
     driver: bridge
+  overlay_network:  # comunicação entre hosts (bridge_network + overlay_network = flexibilidade de ambientes)
+    driver: overlay
+    attachable: true
+  none_network:
+    name: none_network
+    driver: none
