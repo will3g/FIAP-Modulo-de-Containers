@@ -118,5 +118,6 @@ networks:
     name: bridge_network
     driver: bridge
   overlay_network:  # comunicação entre hosts (bridge_network + overlay_network = flexibilidade de ambientes)
+    name: overlay_network
     driver: overlay
     attachable: true
