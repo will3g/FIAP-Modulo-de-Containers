@@ -12,7 +12,7 @@ df_ratings = pd.read_csv('../pipeline/ratings.csv',
     usecols=['user_id', 'movie_id', 'rating', 'timestamp']
 )
 
-client = MongoClient("mongodb://root:root@localhost:27017/")
+client = MongoClient("mongodb://root:root@mongo:27017/")
 db = client["movie_database"]
 
 movies_collection = db["movies"]
