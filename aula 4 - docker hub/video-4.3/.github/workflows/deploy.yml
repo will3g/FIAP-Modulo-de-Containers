@@ -44,9 +44,9 @@ jobs:
       run: |
         gcloud container clusters get-credentials ${{ secrets.GCP_CLUSTER_NAME }} --zone ${{ secrets.GCP_ZONE }}
 
-    - name: Generate Manifest to streamlit
+    - name: Generate Manifest to streamlit application
       run: |
-        ./generate-manifest.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.STREAMLIT_IMAGE }} streamlit-app 8080 streamlit-deployment.yml
+        ./generate-manifest.sh ${{ secrets.DOCKER_USERNAME }} ${{ secrets.STREAMLIT_IMAGE }} streamlit 8080 streamlit-deployment.yml
 
     - name: Deploy to GKE
       run: |

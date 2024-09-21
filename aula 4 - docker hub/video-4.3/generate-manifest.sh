@@ -34,11 +34,20 @@ spec:
         io.kompose.service: $GKE_INSTANCE_NAME
     spec:
       containers:
-        - image: $DOCKER_USERNAME/$INSTANCE_IMAGE:latest
+        - env:
+            - name: MONGO_HOST
+              value: mongo-tcp
+            - name: MONGO_PASSWORD
+              value: root
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_USER
+              value: root
+          image: $DOCKER_USERNAME/$INSTANCE_IMAGE:latest
           livenessProbe:
             exec:
               command:
-                - curl -f http://localhost:$GKE_INSTANCE_PORT/ || exit 1
+                - curl -f http://$GKE_INSTANCE_NAME-tcp:$GKE_INSTANCE_PORT/ || exit 1
             failureThreshold: 3
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -49,11 +58,12 @@ spec:
               protocol: TCP
           resources:
             limits:
-              cpu: "2"
-              memory: "4294967296"
+              cpu: 250m
+              memory: "536870912"
             requests:
-              cpu: "1"
-              memory: "2147483648"
+              cpu: 100m
+              memory: "268435456"
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
