@@ -29,7 +29,7 @@ services:
     ports:
       - "8081:8081" # INTERFACE: http://localhost:8081
     depends_on:
-      - mongo
+      - mongodb
     networks:
       - bridge_network
       - overlay_network
